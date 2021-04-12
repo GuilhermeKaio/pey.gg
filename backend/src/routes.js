@@ -9,7 +9,7 @@ routes.get('/', (req, res) => {
   });
 
 routes.get('/matches/:page', matchController.team);
-routes.get('/stats', matchController.stats);
+routes.get('/stats', matchController.teamStats);
 
 
 module.exports = routes;

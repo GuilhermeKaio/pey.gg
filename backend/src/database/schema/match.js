@@ -38,6 +38,10 @@ const matchSchema = new Schema({
         required: [true, 'match without champions in red side']
     },
     blueSide:{
+        victory: {
+            type: Boolean,
+            required: [true, 'match without victory in blue side']
+        },
         team: {
             type: String,
             required: [true, 'match without team name in blue side'] 
@@ -88,12 +92,20 @@ const matchSchema = new Schema({
             type: Number,
             required: [true, 'match without baron in blue side']
         },
+        csTotal:{
+            type: Number,
+            required: [true, 'match without Total CS in blue side']
+        },
         players:{
             type: [playerSchema],
             required: [true, 'match without players in blue side']
         }
     },
     redSide:{
+        victory: {
+            type: Boolean,
+            required: [true, 'match without victory in red side']
+        },
         team: {
             type: String,
             required: [true, 'match without team name in red side'] 
@@ -143,6 +155,10 @@ const matchSchema = new Schema({
         baron:{
             type: Number,
             required: [true, 'match without baron in red side']
+        },
+        csTotal:{
+            type: Number,
+            required: [true, 'match without Total CS in red side']
         },
         players:{
             type: [playerSchema],
