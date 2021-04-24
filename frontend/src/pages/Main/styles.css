@@ -1,0 +1,134 @@
+body {
+    position: absolute;
+    top: 0; bottom: 0; left: 0; right: 0;
+    margin: 0;
+    height: 100%;
+    background-color: #1A212D;
+  }
+
+  .logon-container {
+    width: 100%;
+    max-width: 1120px;
+    height: 100vh;
+    margin: 0 auto;
+  
+    display: flex;
+    justify-content: space-around;
+  }
+  
+  .logon-container section.form {
+    width: 100%;
+    max-width: 80%;
+
+  }
+
+  .logon-container section.form section.logo {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    margin-top: 215px;
+  }
+  
+  .logon-container section.form form {
+    margin-top: 100px;
+  }
+  
+  .logon-container section.form form h1 {
+    font-size: 32px;
+    margin-bottom: 32px;
+  }
+
+  .logon-container section.team{
+    width: 400px;
+    height: 113px;
+    background: #2A2E38;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.5);
+
+    display: flex;
+    justify-content:space-between;
+  }
+
+
+  .logon-container section.team .info {
+    width: 100%;
+  }
+
+  .logon-container section.team img{
+    margin-left: 20px;
+    width: 100px;
+  }
+
+  .logon-container section.team {
+    text-align: center;
+  }
+
+  .logon-container section.team .title{
+      font-family: SofiaPro-semibold;
+      color: white;
+      font-size: 25px;
+  }
+
+  .logon-container section.team section.stats{
+    display: flex;
+    justify-content:space-evenly;
+
+    font-family: SofiaPro-semibold;
+    font-size: 30px;
+    line-height: 80%;
+
+    margin-top: 5px;
+    }
+
+  .logon-container section.team section.stats p{
+
+    font-family: SofiaPro-regular;
+    font-size: 16px;
+    color: white;
+    }
+
+    section.group-team{
+      margin-top: 88px;
+      margin-bottom: 50px;
+      width: 100%;
+      height: 75%;
+    }
+    section.row-team{
+      width: 100%;
+      display: flex;
+      justify-content:space-around;
+      margin-bottom: 30px;
+    }
+
+    section.logo-team{
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+    
+    img {
+      -webkit-user-drag: none;
+      -khtml-user-drag: none;
+      -moz-user-drag: none;
+      -o-user-drag: none;
+      user-drag: none;
+    }
+
+    .noselect {
+      -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+         -khtml-user-select: none; /* Konqueror HTML */
+           -moz-user-select: none; /* Old versions of Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+                user-select: none; /* Non-prefixed version, currently
+                                      supported by Chrome, Edge, Opera and Firefox */
+    }
+
+    .link{
+      text-decoration: none;
+    }
+
+    .loading{
+      margin-left: 20px;
+    }
+    

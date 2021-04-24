@@ -17,7 +17,8 @@ const teamSchema = new Schema({
     loses:{
         type: Number,
         default: 0
-    }
+    },
+    logo: String
 });
 
   module.exports = teamSchema;
