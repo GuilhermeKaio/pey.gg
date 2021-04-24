@@ -12,7 +12,7 @@ import fbLogo from '../../assets/FB.svg';
 import towerLogo from '../../assets/tower.svg';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 
-export default function Logon() {
+export default function Team() {
   const [Stats, setStats] = useState([]);
   const [Data, setData] = useState([]);
   const [Bans, setBans] = useState([]);
