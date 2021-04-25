@@ -11,7 +11,7 @@ Um site de estatísticas referentes a partidas competitivas de <a href="https://
 
 - ``DB_URL: URL de conexão com o mongo``
 
-  - Cluster Atlas com todos os dados, para testes: ``mongodb+srv://fPJX61bU7Hlr9KXm:dRrYR1jtZbEQtNiT@cluster1.9prkb.mongodb.net/test_stats?retryWrites=true&w=majority``
+  - Cluster Atlas com todos os dados, para testes: ``mongodb+srv://fPJX61bU7Hlr9KXm:dRrYR1jtZbEQtNiT@cluster1.9prkb.mongodb.net/test_stats``
 
 - ``PORT: Porta utlizada pelo Express``
   - ao contrario sera ulilizado a porta: `3333`
