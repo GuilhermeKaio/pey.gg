@@ -10,11 +10,16 @@ Um site de estatísticas referentes a partidas competitivas de <a href="https://
 ### Backend
 
 - ``DB_URL: URL de conexão com o mongo``
+
+  - Cluster Atlas com todos os dados, para testes: `mongodb+srv://fPJX61bU7Hlr9KXm:dRrYR1jtZbEQtNiT@cluster1.9prkb.mongodb.net/test_stats?retryWrites=true&w=majority`
+
 - ``PORT: Porta utlizada pelo Express``
+  - ao contrario sera ulilizado a porta: `3333`
 
 ### Frontend
 
 - ``API_URL: URL de conexão com a API``
+  - se a `PORT` não for alterada sera: `http://localhost:3333`
 
 ## Como configurar
 ### Backend
