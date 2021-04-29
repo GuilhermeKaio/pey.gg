@@ -888,8 +888,6 @@ async function teamStats(req, res) {
       return res.send(error);
     }
 
-    
-
     bannedBy = mergeBans(bansBy[0].blueBans, bansBy[0].redBans);
     bannedBy.sort(compare);
     bannedAgainst= mergeBans(bansAgainst[0].blueBans, bansAgainst[0].redBans);
@@ -922,391 +920,45 @@ async function teamStats(req, res) {
 }
 
 async function teamPercentage(req, res){
-
   let { team } = req.query;
 
   try{
-      blueAllieFirstBlood = await Match.aggregate([
-        {
-          '$match': {
-            'blueSide.team': team
-          }
-        }, {
-          '$unwind': {
-            'path': '$blueSide.players'
-          }
-        }, {
-          '$group': {
-            '_id': null, 
-            'count': {
-              '$sum': {
-                '$cond': [
-                  '$blueSide.players.combat.firstBlood', 1, 0
-                ]
-              }
-            }
-          }
-        }, {
-          '$project': {
-            '_id': 0, 
-            'count': 1
-          }
-        }
-      ]);
-    
-      blueEnemyFirstBlood = await Match.aggregate([
-        {
-          '$match': {
-            'blueSide.team': team
-          }
-        }, {
-          '$unwind': {
-            'path': '$redSide.players'
-          }
-        }, {
-          '$group': {
-            '_id': null, 
-            'count': {
-              '$sum': {
-                '$cond': [
-                  '$redSide.players.combat.firstBlood', 1, 0
-                ]
-              }
-            }
-          }
-        }, {
-          '$project': {
-            '_id': 0, 
-            'count': 1
-          }
-        }
-      ]);
-    
-      redAllieFirstBlood = await Match.aggregate([
-        {
-          '$match': {
-            'redSide.team': team
-          }
-        }, {
-          '$unwind': {
-            'path': '$redSide.players'
-          }
-        }, {
-          '$group': {
-            '_id': null, 
-            'count': {
-              '$sum': {
-                '$cond': [
-                  '$redSide.players.combat.firstBlood', 1, 0
-                ]
-              }
-            }
-          }
-        }, {
-          '$project': {
-            '_id': 0, 
-            'count': 1
-          }
-        }
-      ]);
-    
-      redEnemyFirstBlood = await Match.aggregate([
-        {
-          '$match': {
-            'redSide.team': team
-          }
-        }, {
-          '$unwind': {
-            'path': '$blueSide.players'
-          }
-        }, {
-          '$group': {
-            '_id': null, 
-            'count': {
-              '$sum': {
-                '$cond': [
-                  '$blueSide.players.combat.firstBlood', 1, 0
-                ]
-              }
-            }
-          }
-        }, {
-          '$project': {
-            '_id': 0, 
-            'count': 1
-          }
-        }
-      ]);
-    
-      blueSideWL = await Match.aggregate([
-        {
-          '$match': {
-            'blueSide.team': team
-          }
-        }, {
-          '$group': {
-            '_id': null, 
-            'win': {
-              '$sum': {
-                '$cond': [
-                  '$blueSide.victory', 1, 0
-                ]
-              }
-            }, 
-            'lose': {
-              '$sum': {
-                '$cond': [
-                  '$blueSide.victory', 0, 1
-                ]
-              }
-            }
-          }
-        }, {
-          '$project': {
-            '_id': 0, 
-            'win': 1, 
-            'lose': 1
-          }
-        }
-      ]);
-    
-      redSideWL = await Match.aggregate([
-        {
-          '$match': {
-            'redSide.team': team
-          }
-        }, {
-          '$group': {
-            '_id': null, 
-            'win': {
-              '$sum': {
-                '$cond': [
-                  '$redSide.victory', 1, 0
-                ]
-              }
-            }, 
-            'lose': {
-              '$sum': {
-                '$cond': [
-                  '$redSide.victory', 0, 1
-                ]
-              }
-            }
-          }
-        }, {
-          '$project': {
-            '_id': 0, 
-            'win': 1, 
-            'lose': 1
-          }
-        }
-      ]);
-    
+      const [ fb ] = await Match.aggregate([ { '$match': { 'blueSide.team': team } }, { '$unwind': { 'path': '$blueSide.players' } }, { '$group': { '_id': null, 'team': { '$first': '$blueSide.team' }, 'blue': { '$sum': { '$cond': [ '$blueSide.players.combat.firstBlood', 1, 0 ] } }, 'total': { '$sum': 1 } } }, { '$project': { '_id': 0, 'team': 1, 'aBlueSide': '$blue', 'eBlueSide': { '$subtract': [ { '$divide': [ '$total', 5 ] }, '$blue' ] } } }, { '$lookup': { 'from': 'matches', 'localField': 'team', 'foreignField': 'redSide.team', 'as': 'red' } }, { '$unwind': { 'path': '$red' } }, { '$unwind': { 'path': '$red.redSide.players' } }, { '$group': { '_id': null, 'eBlueSide': { '$first': '$eBlueSide' }, 'aBlueSide': { '$first': '$aBlueSide' }, 'red': { '$sum': { '$cond': [ '$red.redSide.players.combat.firstBlood', 1, 0 ] } }, 'total': { '$sum': 1 } } }, { '$project': { '_id': 0, 'aBlueSide': 1, 'eBlueSide': 1, 'aRedSide': '$red', 'eRedSide': { '$subtract': [ { '$divide': [ '$total', 5 ] }, '$red' ] }, 'ally': { '$sum': [ '$red', '$aBlueSide' ] }, 'enemy': { '$sum': [ '$eBlueSide', { '$subtract': [ { '$divide': [ '$total', 5 ] }, '$red' ] } ] }, 'percentage': { '$multiply': [ { '$divide': [ { '$sum': [ '$red', '$aBlueSide' ] }, { '$sum': [ { '$sum': [ '$red', '$aBlueSide' ] }, { '$sum': [ '$eBlueSide', { '$subtract': [ { '$divide': [ '$total', 5 ] }, '$red' ] } ] } ] } ] }, 100 ] } } } ]);
+      const [ wr ]= await Match.aggregate([ { '$match': { 'blueSide.team': team } }, { '$group': { '_id': null, 'team': { '$first': '$blueSide.team' }, 'winBlue': { '$sum': { '$cond': [ '$blueSide.victory', 1, 0 ] } }, 'loseBlue': { '$sum': { '$cond': [ '$blueSide.victory', 0, 1 ] } } } }, { '$lookup': { 'from': 'matches', 'localField': 'team', 'foreignField': 'redSide.team', 'as': 'red' } }, { '$unwind': { 'path': '$red' } }, { '$group': { '_id': null, 'winBlue': { '$first': '$winBlue' }, 'loseBlue': { '$first': '$loseBlue' }, 'winRed': { '$sum': { '$cond': [ '$red.redSide.victory', 1, 0 ] } }, 'loseRed': { '$sum': { '$cond': [ '$red.redSide.victory', 0, 1 ] } } } }, { '$project': { '_id': 0, 'winBlue': 1, 'loseBlue': 1, 'winRed': 1, 'loseRed': 1, 'win': { '$sum': [ '$winBlue', '$winRed' ] }, 'lose': { '$sum': [ '$loseBlue', '$loseRed' ] }, 'total': { '$sum': [ { '$sum': [ '$winBlue', '$winRed' ] }, { '$sum': [ '$loseBlue', '$loseRed' ] } ] }, 'percentage': { '$multiply': [ { '$divide': [ { '$sum': [ '$winBlue', '$winRed' ] }, { '$sum': [ { '$sum': [ '$winBlue', '$winRed' ] }, { '$sum': [ '$loseBlue', '$loseRed' ] } ] } ] }, 100 ] } } } ]);
 
+      console.log(fb);
+      console.log(wr)
+      return res.json({
+        firstBlood: fb.percentage.toFixed(1),
+        winrate: wr.percentage.toFixed(1)
+      });
+  
+    }
+  catch {
+    return res.sendStatus(500);
   }
-  catch (error){
-    return res.send(error);
-  }
-
-
-  return res.json({
-    firstBlood: ((blueAllieFirstBlood[0].count + redAllieFirstBlood[0].count) / (blueEnemyFirstBlood[0].count + redEnemyFirstBlood[0].count + blueAllieFirstBlood[0].count + redAllieFirstBlood[0].count) * 100).toFixed(1),
-    winrate: ((blueSideWL[0].win + redSideWL[0].win) / (blueSideWL[0].lose + redSideWL[0].lose + blueSideWL[0].win + redSideWL[0].win) * 100).toFixed(1)
-  });
 }
 
 async function teamPercentageArray(req, res){
-
   var arr = JSON.parse(req.query.array);
   var wr = [];
   var fb = [];
   var logos = [];
+  
   try{
     for (team of arr){
-        blueAllieFirstBlood = await Match.aggregate([
-          {
-            '$match': {
-              'blueSide.team': team
-            }
-          }, {
-            '$unwind': {
-              'path': '$blueSide.players'
-            }
-          }, {
-            '$group': {
-              '_id': null, 
-              'count': {
-                '$sum': {
-                  '$cond': [
-                    '$blueSide.players.combat.firstBlood', 1, 0
-                  ]
-                }
-              }
-            }
-          }, {
-            '$project': {
-              '_id': 0, 
-              'count': 1
-            }
-          }
-        ]);
-      
-        blueEnemyFirstBlood = await Match.aggregate([
-          {
-            '$match': {
-              'blueSide.team': team
-            }
-          }, {
-            '$unwind': {
-              'path': '$redSide.players'
-            }
-          }, {
-            '$group': {
-              '_id': null, 
-              'count': {
-                '$sum': {
-                  '$cond': [
-                    '$redSide.players.combat.firstBlood', 1, 0
-                  ]
-                }
-              }
-            }
-          }, {
-            '$project': {
-              '_id': 0, 
-              'count': 1
-            }
-          }
-        ]);
-      
-        redAllieFirstBlood = await Match.aggregate([
-          {
-            '$match': {
-              'redSide.team': team
-            }
-          }, {
-            '$unwind': {
-              'path': '$redSide.players'
-            }
-          }, {
-            '$group': {
-              '_id': null, 
-              'count': {
-                '$sum': {
-                  '$cond': [
-                    '$redSide.players.combat.firstBlood', 1, 0
-                  ]
-                }
-              }
-            }
-          }, {
-            '$project': {
-              '_id': 0, 
-              'count': 1
-            }
-          }
-        ]);
-      
-        redEnemyFirstBlood = await Match.aggregate([
-          {
-            '$match': {
-              'redSide.team': team
-            }
-          }, {
-            '$unwind': {
-              'path': '$blueSide.players'
-            }
-          }, {
-            '$group': {
-              '_id': null, 
-              'count': {
-                '$sum': {
-                  '$cond': [
-                    '$blueSide.players.combat.firstBlood', 1, 0
-                  ]
-                }
-              }
-            }
-          }, {
-            '$project': {
-              '_id': 0, 
-              'count': 1
-            }
-          }
-        ]);
-      
-        blueSideWL = await Match.aggregate([
-          {
-            '$match': {
-              'blueSide.team': team
-            }
-          }, {
-            '$group': {
-              '_id': null, 
-              'win': {
-                '$sum': {
-                  '$cond': [
-                    '$blueSide.victory', 1, 0
-                  ]
-                }
-              }, 
-              'lose': {
-                '$sum': {
-                  '$cond': [
-                    '$blueSide.victory', 0, 1
-                  ]
-                }
-              }
-            }
-          }, {
-            '$project': {
-              '_id': 0, 
-              'win': 1, 
-              'lose': 1
-            }
-          }
-        ]);
-      
-        redSideWL = await Match.aggregate([
-          {
-            '$match': {
-              'redSide.team': team
-            }
-          }, {
-            '$group': {
-              '_id': null, 
-              'win': {
-                '$sum': {
-                  '$cond': [
-                    '$redSide.victory', 1, 0
-                  ]
-                }
-              }, 
-              'lose': {
-                '$sum': {
-                  '$cond': [
-                    '$redSide.victory', 0, 1
-                  ]
-                }
-              }
-            }
-          }, {
-            '$project': {
-              '_id': 0, 
-              'win': 1, 
-              'lose': 1
-            }
-          }
-        ]);
+        let [ firstBlood ] = await Match.aggregate([ { '$match': { 'blueSide.team': team } }, { '$unwind': { 'path': '$blueSide.players' } }, { '$group': { '_id': null, 'team': { '$first': '$blueSide.team' }, 'blue': { '$sum': { '$cond': [ '$blueSide.players.combat.firstBlood', 1, 0 ] } }, 'total': { '$sum': 1 } } }, { '$project': { '_id': 0, 'team': 1, 'aBlueSide': '$blue', 'eBlueSide': { '$subtract': [ { '$divide': [ '$total', 5 ] }, '$blue' ] } } }, { '$lookup': { 'from': 'matches', 'localField': 'team', 'foreignField': 'redSide.team', 'as': 'red' } }, { '$unwind': { 'path': '$red' } }, { '$unwind': { 'path': '$red.redSide.players' } }, { '$group': { '_id': null, 'eBlueSide': { '$first': '$eBlueSide' }, 'aBlueSide': { '$first': '$aBlueSide' }, 'red': { '$sum': { '$cond': [ '$red.redSide.players.combat.firstBlood', 1, 0 ] } }, 'total': { '$sum': 1 } } }, { '$project': { '_id': 0, 'aBlueSide': 1, 'eBlueSide': 1, 'aRedSide': '$red', 'eRedSide': { '$subtract': [ { '$divide': [ '$total', 5 ] }, '$red' ] }, 'ally': { '$sum': [ '$red', '$aBlueSide' ] }, 'enemy': { '$sum': [ '$eBlueSide', { '$subtract': [ { '$divide': [ '$total', 5 ] }, '$red' ] } ] }, 'percentage': { '$multiply': [ { '$divide': [ { '$sum': [ '$red', '$aBlueSide' ] }, { '$sum': [ { '$sum': [ '$red', '$aBlueSide' ] }, { '$sum': [ '$eBlueSide', { '$subtract': [ { '$divide': [ '$total', 5 ] }, '$red' ] } ] } ] } ] }, 100 ] } } } ]);      
+        let [ winrate ]= await Match.aggregate([ { '$match': { 'blueSide.team': team } }, { '$group': { '_id': null, 'team': { '$first': '$blueSide.team' }, 'winBlue': { '$sum': { '$cond': [ '$blueSide.victory', 1, 0 ] } }, 'loseBlue': { '$sum': { '$cond': [ '$blueSide.victory', 0, 1 ] } } } }, { '$lookup': { 'from': 'matches', 'localField': 'team', 'foreignField': 'redSide.team', 'as': 'red' } }, { '$unwind': { 'path': '$red' } }, { '$group': { '_id': null, 'winBlue': { '$first': '$winBlue' }, 'loseBlue': { '$first': '$loseBlue' }, 'winRed': { '$sum': { '$cond': [ '$red.redSide.victory', 1, 0 ] } }, 'loseRed': { '$sum': { '$cond': [ '$red.redSide.victory', 0, 1 ] } } } }, { '$project': { '_id': 0, 'winBlue': 1, 'loseBlue': 1, 'winRed': 1, 'loseRed': 1, 'win': { '$sum': [ '$winBlue', '$winRed' ] }, 'lose': { '$sum': [ '$loseBlue', '$loseRed' ] }, 'total': { '$sum': [ { '$sum': [ '$winBlue', '$winRed' ] }, { '$sum': [ '$loseBlue', '$loseRed' ] } ] }, 'percentage': { '$multiply': [ { '$divide': [ { '$sum': [ '$winBlue', '$winRed' ] }, { '$sum': [ { '$sum': [ '$winBlue', '$winRed' ] }, { '$sum': [ '$loseBlue', '$loseRed' ] } ] } ] }, 100 ] } } } ]);
+
         teamInfo = await Team.findOne({ 'name': team});
 
-        fb.push(((blueAllieFirstBlood[0].count + redAllieFirstBlood[0].count) / (blueEnemyFirstBlood[0].count + redEnemyFirstBlood[0].count + blueAllieFirstBlood[0].count + redAllieFirstBlood[0].count) * 100).toFixed(1));
-        wr.push(((blueSideWL[0].win + redSideWL[0].win) / (blueSideWL[0].lose + redSideWL[0].lose + blueSideWL[0].win + redSideWL[0].win) * 100).toFixed(1));
+        fb.push( firstBlood.percentage.toFixed(1));
+        wr.push( winrate.percentage.toFixed(1));
         logos.push(teamInfo.logo);
     }
   }
-  catch(error){
-    return res.send(error);
+  catch {
+    return res.sendStatus(500);
   }
 
   return res.json({
