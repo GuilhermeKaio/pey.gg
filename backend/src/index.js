@@ -11,4 +11,4 @@ app.use(routes);
 
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
-app.listen(3333);
+app.listen(process.env.DB_URL || 3333);

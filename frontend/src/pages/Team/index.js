@@ -36,8 +36,8 @@ export default function Team() {
     .get(`stats?team=${query.get("name")}`)
     .then( res =>{
       stats.push(res.data.winrate);
-      stats.push(res.data.goldPerMinute.toFixed(1));
       stats.push(res.data.csPerMinute.toFixed(1));
+      stats.push(res.data.goldPerMinute.toFixed(1));
       stats.push(res.data.avgTowerDiff.toFixed(1));
       stats.push(res.data.killsPerGame.toFixed(1));
       stats.push(res.data.deathsPerGame.toFixed(1));
